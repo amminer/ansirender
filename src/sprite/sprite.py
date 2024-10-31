@@ -2,13 +2,13 @@
 
 from ..config import ansi_escape_pattern
 
-from ansifier import ansify
+from ansifier import ansify  # pyright: ignore
 
 
 class Sprite():
     def __init__(self, filepath, size=(20, 20)):
         self.index = 0
-        self.frames = ansify(filepath, width=size[0], height=size[1])
+        self.frames = ansify(filepath, width=size[0], height=size[1], chars='█▓▒░ ')
         self.nframes = len(self.frames)
         frame0_lines = [ansi_escape_pattern.sub('', line)
                         for line in self.frames[0].split('\n')]
