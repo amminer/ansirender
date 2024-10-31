@@ -9,14 +9,14 @@ from ..field import Field
 def main():
 
     # setup
-    filepath = sys.argv[1]
+    filepaths = [arg for arg in sys.argv[1:len(sys.argv)]]
 
     field = Field()
-    size = (min(80, field.columns//2), min(80, field.lines//2))
-    sprite = Sprite(filepath, size=size)
+    size = (min(80, field.ncolumns//2), min(80, field.nlines//2))
+    sprites = [Sprite(filepath, size=size) for filepath in filepaths]
 
 
     # run
     os.system('clear')
 
-    field.dvd(sprite)
+    field.dvd(sprites)
