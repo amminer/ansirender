@@ -12,53 +12,45 @@ class Field():
         self.nlines = get_terminal_size().lines
 
 
-    def print_at_position(self, text:str, x:int, y:int, ignore_whitespace:bool=False):
-        output = '\n'.join([f"\033[{y+i};{x}H{line}" for i, line in enumerate(text.split('\n'))])
+    def print_at_position(self, text:Sprite|str, x:int, y:int, ignore_whitespace:bool=False):
+        output = '\n'.join([f"\033[{y+i};{x}H{line}" for i, line in enumerate(str(text).split('\n'))])
         if ignore_whitespace:
             output = output.replace(' ', '\033[1C')
         print(output, end='')
 
 
     def dvd(self, sprites: list[Sprite]):
-        frames: list[str] = []
-        positions: list[tuple[int,int]] = []
         directions: list[tuple[int,int]] = []
         for sprite in sprites:
-            frame = sprite.animate()
-            frames.append(frame)
-
             position = (random.randint(0, self.ncolumns - sprite.width),
                         random.randint(0, self.nlines - sprite.height))
-            positions.append(position)
+            sprite.position = position
 
             h_direction = random.choice((-1, 1))
             v_direction = random.choice((-1, 1))
             directions.append((h_direction, v_direction))
 
         while True:
-            # have to clean up each sprite before redrawing them in new positions
+            # clean up all sprites before redrawing the field
             for i, sprite in enumerate(sprites):
-                position = positions[i]
-                self.print_at_position(sprite.cleanup_frame, *position)
-            # redraw sprites in new positions, determine next movements, sleep
+                self.print_at_position(sprite.cleanup_frame, *sprite.position)
+            # redraw all sprites, determine next movements, sleep
             for i, sprite in enumerate(sprites):
-                frame = frames[i]
-                position = positions[i]
                 h_direction, v_direction = directions[i]
-                new_position = (position[0]+h_direction, position[1]+v_direction)
-                self.print_at_position(frame, *new_position, ignore_whitespace=True)
+                new_position = (sprite.position[0]+h_direction, sprite.position[1]+v_direction)
+                sprite.move(new_position)
+                self.print_at_position(sprite, *sprite.position, ignore_whitespace=True)
 
-                if new_position[0]+sprite.width > self.ncolumns:
+                if sprite.position[0]+sprite.width > self.ncolumns:
                     h_direction = -1
-                elif new_position[0] <= 1:
+                elif sprite.position[0] <= 1:
                     h_direction = 1
-                if new_position[1]+sprite.height > self.nlines:
+                if sprite.position[1]+sprite.height > self.nlines:
                     v_direction = -1
-                elif new_position[1] <= 1:
+                elif sprite.position[1] <= 1:
                     v_direction = 1
 
-                frames[i] = sprite.animate()
-                positions[i] = new_position
+                sprite.animate()
                 directions[i] = (h_direction, v_direction)
 
-            sleep(1/10)
+            sleep(1/5)

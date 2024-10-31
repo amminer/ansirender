@@ -8,11 +8,13 @@ from ansifier import ansify  # pyright: ignore
 class Sprite():
     def __init__(self, filepath, size=(20, 20)):
         self.index = 0
+        self.position: tuple[int, int] = (0, 0)
+        self.prev_position: tuple[int, int] = (0, 0)
         self.frames = ansify(filepath, width=size[0], height=size[1], chars='█▓▒░ ')
         self.nframes = len(self.frames)
+
         frame0_lines = [ansi_escape_pattern.sub('', line)
                         for line in self.frames[0].split('\n')]
-
         self.height = len(frame0_lines)
         self.width = len(frame0_lines[0])
         self.cleanup_frame = '\n'.join([
@@ -28,3 +30,7 @@ class Sprite():
 
     def reset_animation(self):
         self.index = 0
+
+    def move(self, new_position):
+        self.prev_position = self.position
+        self.position = new_position
